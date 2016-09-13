@@ -1,0 +1,132 @@
+<div style="text-align: center;">
+<canvas id="cSurface" width="750" height="50"></canvas>
+</div>
+<script type="text/javascript">
+    var Surface;
+    var SurfaceData;
+    var FireSize = { w: 400, h: 50 };
+    var startTime;
+    var MousePosition = { x: 0, y: 0, button: false };
+
+    // Spreading matrix
+    var matrix = [
+			[-1, 1], [0, 0], [1, 1]
+			];
+
+    function Random(max) {
+        return Math.floor(Math.random() * max) + 0;
+    }
+
+    function getXY(x, y, bite) {
+        return ((y * (FireSize.w * 4)) + (x * 4)) + bite;
+    }
+
+    function setFire() {
+        var randomColor;
+        for (var i = 0; i < FireSize.w; i++) {
+            randomColor = Random(255);
+            SurfaceData.data[getXY(i, FireSize.h - 1, 0)] = 255;
+            SurfaceData.data[getXY(i, FireSize.h - 1, 1)] = randomColor;
+            SurfaceData.data[getXY(i, FireSize.h - 1, 2)] = 0;
+            SurfaceData.data[getXY(i, FireSize.h - 1, 3)] = 255;
+        };
+    }
+
+    function throwFire(x, y) {
+        for (var u = 0; u < 4; u++) { //y
+            for (var v = 0; v < 2; v++) { //x
+                randomColor = Random(255);
+                SurfaceData.data[getXY(x - v, y - u, 0)] = 255;
+                SurfaceData.data[getXY(x - v, y - u, 1)] = randomColor;
+                SurfaceData.data[getXY(x - v, y - u, 2)] = 0;
+                SurfaceData.data[getXY(x - v, y - u, 3)] = 255;                
+            }
+        }
+    }
+
+    function processPixel(x, y) {
+        var r, g, b,
+				    q = 0, w = 0, e = 0;
+        for (var i = 0; i < matrix.length; i++) {
+            r = SurfaceData.data[getXY(
+						(x + matrix[i][0]),
+						(y + matrix[i][1]),
+						0)];
+            g = SurfaceData.data[getXY(
+						(x + matrix[i][0]),
+						(y + matrix[i][1]),
+						1)];
+            b = SurfaceData.data[getXY(
+						(x + matrix[i][0]),
+						(y + matrix[i][1]),
+						2)];
+            q += r;
+            w += g;
+            e += b;
+        }
+        q /= matrix.length;
+        w /= matrix.length;
+        e /= matrix.length;
+
+        // Cooldown
+        q = q > 0 ? q - Random(10) : q;
+        w = w > 0 ? w - Random(10) : w;
+        e = e > 0 ? e - Random(5) : e;
+
+        return { r: q, g: w, b: e };
+    }
+
+    function UpdateFire() {
+        setFire();
+        
+        for (var row = FireSize.h - 2; row > 0; row-=1) {
+            for (var col = 1; col < FireSize.w; col+=1) {
+                var pixel = processPixel(col, row);
+                SurfaceData.data[getXY(col, row, 0)] = pixel.r;
+                SurfaceData.data[getXY(col, row, 1)] = pixel.g;
+                SurfaceData.data[getXY(col, row, 2)] = pixel.b;
+                SurfaceData.data[getXY(col, row, 3)] = 255;
+            }
+        }
+        if(MousePosition.button)
+            throwFire(Math.floor(MousePosition.x/2)+20, MousePosition.y);
+
+        var deltaTime = new Date().getTime() - startTime;
+        var hz = (Math.PI / 1000);
+        var y = stretch.getContext('2d');
+        y.putImageData(SurfaceData, 0, 0);
+        y.fillStyle = '#FFF';
+        y.font = "12px Georgia";
+        var f = Math.sin(deltaTime * hz);
+        y.fillText("Fiery Text", Math.round(f * -20 + (100 + 20)), 30);
+        SurfaceData = stretch.getContext('2d').getImageData(0, 0, FireSize.w, FireSize.h);
+        Surface.drawImage(stretch, -20, 1);
+        window.requestAnimationFrame(UpdateFire);
+    }
+
+    function initScreen() {
+        var canvas = document.getElementById('cSurface');
+        stretch = document.createElement('canvas');
+        stretch.width = FireSize.w;
+        stretch.height = FireSize.h;
+
+        if (canvas.getContext) {
+            Surface = canvas.getContext('2d');
+            SurfaceData = stretch.getContext('2d').getImageData(0, 0, FireSize.w, FireSize.h);
+            Surface.scale(2, 1);
+            canvas.addEventListener('mousemove', function (e) {
+                event.preventDefault();
+                MousePosition.x = e.clientX - e.target.offsetLeft;
+                MousePosition.y = e.clientY - e.target.offsetTop;
+                MousePosition.button = e.which == 0 ? false : true;
+            }, false);
+        } else {
+            return;
+        }
+        startTime = new Date().getTime();
+        setTimeout(function () { UpdateFire(); }, 10);
+    }
+
+    window.onload = function () { initScreen(); };
+</script>
+	
