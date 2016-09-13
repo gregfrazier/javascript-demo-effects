@@ -1,0 +1,600 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0054)http://gregoryfrazier.com/software/zipfiles/texmap.htm -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+		<title>Say My Name</title> 
+			<script type="text/javascript">
+			
+/*
+  (c)2010-2013 Greg Frazier
+  
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
+
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
+
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.	
+*/
+	var movement = {x:-50.0, y:0, z:0, t: 650, fov: 600, disassemble: false, fill: true, light: true}; //{x:-2, y:-3, z:-6, t: 250, fov: 100, disassemble: false};
+	var Surface;
+	var light = {x: -50, y: 80, z: -30};
+	var Camera = {x: 0, y: 0, z: -30};
+	var Logo;
+	var ObjectVectors = [{x:96,y:2,z:0},
+{x:137,y:9,z:0},
+{x:142,y:38,z:0},
+{x:168,y:49,z:0},
+{x:141,y:63,z:0},
+{x:51,y:60,z:0},
+{x:23,y:48,z:0},
+{x:48,y:39,z:0},
+{x:56,y:9,z:0},
+{x:96,y:2,z:-20},
+{x:137,y:9,z:-20},
+{x:142,y:38,z:-20},
+{x:168,y:49,z:-20},
+{x:141,y:63,z:-20},
+{x:51,y:60,z:-20},
+{x:23,y:48,z:-20},
+{x:48,y:39,z:-20},
+{x:56,y:9,z:-20},
+{x:56,y:71,z:0},
+{x:84,y:72,z:0},
+{x:106,y:71,z:0},
+{x:136,y:71,z:0},
+{x:136,y:88,z:0},
+{x:128,y:97,z:0},
+{x:108,y:95,z:0},
+{x:98,y:80,z:0},
+{x:93,y:80,z:0},
+{x:85,y:96,z:0},
+{x:61,y:97,z:0},
+{x:54,y:88,z:0},
+{x:56,y:71,z:-10},
+{x:84,y:72,z:-10},
+{x:106,y:71,z:-10},
+{x:136,y:71,z:-10},
+{x:136,y:88,z:-10},
+{x:128,y:97,z:-10},
+{x:108,y:95,z:-10},
+{x:98,y:80,z:-10},
+{x:93,y:80,z:-10},
+{x:85,y:96,z:-10},
+{x:61,y:97,z:-10},
+{x:54,y:88,z:-10},
+{x:78,y:110,z:0},
+{x:113,y:111,z:0},
+{x:117,y:115,z:0},
+{x:116,y:126,z:0},
+{x:112,y:119,z:0},
+{x:108,y:120,z:0},
+{x:81,y:120,z:0},
+{x:79,y:117,z:0},
+{x:76,y:126,z:0},
+{x:73,y:114,z:0},
+{x:78,y:110,z:-10},
+{x:113,y:111,z:-10},
+{x:117,y:115,z:-10},
+{x:116,y:126,z:-10},
+{x:112,y:119,z:-10},
+{x:108,y:120,z:-10},
+{x:81,y:120,z:-10},
+{x:79,y:117,z:-10},
+{x:76,y:126,z:-10},
+{x:73,y:114,z:-10},
+{x:76,y:126,z:0},
+{x:82,y:131,z:0},
+{x:90,y:126,z:0},
+{x:102,y:125,z:0},
+{x:107,y:132,z:0},
+{x:116,y:125,z:0},
+{x:118,y:135,z:0},
+{x:111,y:145,z:0},
+{x:95,y:147,z:0},
+{x:81,y:145,z:0},
+{x:71,y:132,z:0},
+{x:76,y:126,z:-10},
+{x:82,y:131,z:-10},
+{x:90,y:126,z:-10},
+{x:102,y:125,z:-10},
+{x:107,y:132,z:-10},
+{x:116,y:125,z:-10},
+{x:118,y:135,z:-10},
+{x:111,y:145,z:-10},
+{x:95,y:147,z:-10},
+{x:81,y:145,z:-10},
+{x:71,y:132,z:-10}
+];									
+	var ObjectFaces = [[5,7,6, 0],
+						[7,5,0, 0],
+						[8,7,0, 0],
+						[0,5,4, 0],
+						[2,0,4, 0],
+						[1,0,2, 0],
+						[3,2,4, 0],
+						[15,16,14, 0],
+						[9,14,16, 0],
+						[9,16,17, 0],
+						[13,14,9, 0],
+						[13,9,11, 0],
+						[11,9,10, 0],
+						[13,11,12, 0],
+						[0,1,9, 0],
+						[1,10,9, 0],
+						[1,2,10, 0],
+						[2,11,10, 0],
+						[2,3,11, 0],
+						[3,12,11, 0],
+						[3,4,12, 0],
+						[4,13,12, 0],
+						[4,5,13, 0],
+						[5,14,13, 0],
+						[5,6,14, 0],
+						[6,15,14, 0],
+						[6,7,15, 0],
+						[7,16,15, 0],
+						[7,8,16, 0],
+						[8,17,16, 0],
+						[8,0,17, 0],
+						[0,9,17, 0],
+
+        [19,29,28, 0],[18,29,19, 0],[27,19,28, 0],[26,19,27, 0],[20,19,26, 0],[20,26,25, 0],[24,20,25, 0],[20,24,23, 0],[20,23,22, 0],[22,21,20, 0],
+        [40,41,31, 0],[31,41,30, 0],[40,31,39, 0],[39,31,38, 0],[38,31,32, 0],[37,38,32, 0],[37,32,36, 0],[35,36,32, 0],[34,35,32, 0],[32,33,34, 0],[18,19,30, 0],[19,31,30, 0],[19,20,31, 0],[20,32,31, 0],[20,21,32, 0],[21,33,32, 0],[21,22,33, 0],[22,34,33, 0],[22,23,34, 0],[23,35,34, 0],[23,24,35, 0],[24,36,35, 0],[24,25,36, 0],[25,37,36, 0],[25,26,37, 0],[26,38,37, 0],[26,27,38, 0],[27,39,38, 0],[27,28,39, 0],[28,40,39, 0],[28,29,40, 0],[29,41,40, 0],[29,18,41, 0],[18,30,41, 0],
+        
+        [49,51,50, 0],[49,42,51, 0],[42,49,48, 0],[48,43,42, 0],[48,47,43, 0],[43,47,46, 0],[44,43,46, 0],[44,46,45, 0],
+        [60,61,59, 0],[61,52,59, 0],[58,59,52, 0],[52,53,58, 0],[53,57,58, 0],[56,57,53, 0],[56,53,54, 0],[55,56,54, 0],[42,43,52, 0],[43,53,52, 0],[43,44,53, 0],[44,54,53, 0],[44,45,54, 0],[45,55,54, 0],[45,46,55, 0],[46,56,55, 0],[46,47,56, 0],[47,57,56, 0],[47,48,57, 0],[48,58,57, 0],[48,49,58, 0],[49,59,58, 0],[49,50,59, 0],[50,60,59, 0],[50,51,60, 0],[51,61,60, 0],[51,42,61, 0],[42,52,61, 0],
+        
+        [63,72,71, 0],[63,62,72, 0],[70,63,71, 0],[70,64,63, 0],[64,70,66, 0],[65,64,66, 0],[69,66,70, 0],[68,66,69, 0],[68,67,66, 0],
+        [82,83,74, 0],[83,73,74, 0],[82,74,81, 0],[74,75,81, 0],[77,81,75, 0],[77,75,76, 0],[81,77,80, 0],[80,77,79, 0],[77,78,79, 0],[62,63,73, 0],[63,74,73, 0],[63,64,74, 0],[64,75,74, 0],[64,65,75, 0],[65,76,75, 0],[65,66,76, 0],[66,77,76, 0],[66,67,77, 0],[67,78,77, 0],[67,68,78, 0],[68,79,78, 0],[68,69,79, 0],[69,80,79, 0],[69,70,80, 0],[70,81,80, 0],[70,71,81, 0],[71,82,81, 0],[71,72,82, 0],[72,83,82, 0],[72,62,83, 0],[62,73,83, 0]
+	];
+	var teapot_faces_paint_sort, 
+	    lastRun,
+	    startTime;
+
+function buildBox(w, h, d){
+	var shape_vertices = [
+      {x:  w, y:  h, z: -d},
+      {x:  w, y:  h, z:  d},
+      {x:  w, y: -h, z:  d},
+      {x:  w, y: -h, z: -d},
+      {x: -w, y:  h, z: -d},
+      {x: -w, y:  h, z:  d},
+      {x: -w, y: -h, z:  d},
+      {x: -w, y: -h, z: -d}
+    ];
+    var shape_faces = [
+    	[1, 0, 2, 0],
+    	[1, 2, 5, 0],
+    	[4, 5, 7, 0],    	
+    	[4, 7, 0, 0],    	
+    	[4, 0, 5, 0],
+    	[6, 2, 7, 0],
+    	[1, 5, 0, 0],
+    	[6, 5, 2, 0],    	
+    	[3, 0, 7, 0],    	
+    	[3, 2, 0, 0],    	
+    	[6, 7, 5, 0],    	
+    	[3, 7, 2, 0]
+    ];
+    return {v: shape_vertices, f: shape_faces};
+}
+
+function identity(a){
+	var c = Math.cos(a), s = Math.sin(a);
+	var matrix = [[  1,  0,  0],
+	              [  0,  1,  0],
+				  [  0,  0,  1]];
+	return matrix;
+}
+
+function rotateX(a){
+	var c = Math.cos(a), s = Math.sin(a);
+	var matrix = [[  1,  0,  0],
+	              [  0,  c, -s],
+				  [  0,  s,  c]];
+	return matrix;
+}
+
+function rotateY(a){
+	var c = Math.cos(a), s = Math.sin(a);
+	var matrix = [[  c,  0,  s],
+	              [  0,  1,  0],
+				  [ -s,  0,  c]];
+	return matrix;
+}
+
+function rotateZ(a){
+	var c = Math.cos(a), s = Math.sin(a);
+	var matrix = [[  c, -s,  0],
+	              [  s,  c,  0],
+				  [  0,  0,  1]];
+	return matrix;
+}
+
+function scale(a,b,c){
+	var matrix = [[  a,  0,  0],
+	              [  0,  b,  0],
+				  [  0,  0,  c]];
+	return matrix;
+}
+
+function addMatrix(mat1, mat2){
+	var matrix = [];
+	var temp = [];
+	for(var i = 0; i < 3; i++){
+		temp = [];
+		for(var j = 0; j < 3; j++){
+			temp.push( (mat2[i][0] * mat1[0][j]) + 
+			           (mat2[i][1] * mat1[1][j]) +
+					   (mat2[i][2] * mat1[2][j])
+					 )
+		}
+		matrix.push(temp);
+	}
+	return matrix;
+}
+
+function applyMatrix(p, fn){
+	var x1, y1, z1;
+	x1 = (fn[0][0]*p.x)+(fn[0][1]*p.y)+(fn[0][2]*p.z);
+	y1 = (fn[1][0]*p.x)+(fn[1][1]*p.y)+(fn[1][2]*p.z);
+	z1 = (fn[2][0]*p.x)+(fn[2][1]*p.y)+(fn[2][2]*p.z);
+	return { x: x1, y: y1, z: z1 };
+}
+
+function translate(p, x, y, z){
+	var x1, y1, z1;
+	x1 = p.x + x;
+	y1 = p.y + y;
+	z1 = p.z + z;
+	return { x: x1, y: y1, z: z1 };
+}
+
+function transform(a, z){
+	return a * movement.t / z;
+}
+
+function calcNormal(vectors, face){
+	var v1 = vectors[face[0]], v2 = vectors[face[1]], v3 = vectors[face[2]];
+	var nx, ny, nz, nlength;
+	nx = ((v1.y - v2.y)*(v1.z-v3.z))-((v1.z-v2.z)*(v1.y-v3.y));
+	ny = ((v1.z - v2.z)*(v1.x-v3.x))-((v1.x-v2.x)*(v1.z-v3.z));
+	nz = ((v1.x - v2.x)*(v1.y-v3.y))-((v1.y-v2.y)*(v1.x-v3.x));
+	nlength = Math.sqrt((nx * nx) + (ny * ny) + (nz * nz));
+	nx = nx / nlength;
+	ny = ny / nlength;
+	nz = nz / nlength;
+	return { x: nx, y: ny, z: nz, len: nlength };
+}
+
+function lightlength(){
+	return Math.sqrt((light.x * light.x) + (light.y * light.y) + (light.z * light.z));
+}
+
+var lLength = lightlength();
+
+function calcDotProduct(a, b){
+	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
+}
+
+function timerthing( timest ){
+	var y;
+
+	var TempVectors = [], TempFaces = ObjectFaces.slice(0);
+
+
+    if(!lastRun) {
+        lastRun = new Date().getTime();
+        startTime = lastRun;
+        window.requestAnimationFrame(timerthing);
+        return;
+    }	
+	
+	// Combined Rotational/Transformation Matrix -- need to change to apply it over time.
+	var dTime = ((new Date().getTime() - startTime) / 1000);
+	var applied = addMatrix(addMatrix(rotateY((3.14/180)*(dTime*movement.y)),rotateX((3.14/180)*(dTime*movement.x))),rotateZ((3.14/180)*(dTime*movement.z))); //identity(4); //
+
+	// This moves each poly.
+	for(var x = 0; x < ObjectVectors.length; x++){
+		TempVectors.push(applyMatrix(ObjectVectors[x], applied));
+	}
+	
+	// Clear the canvas
+	Surface.clearRect(0,0,500,400);
+	
+	// Painter's Sort
+	var PainterSort = function(a, b){
+		var aZ1 = TempVectors[a[0]].z, 
+			aZ2 = TempVectors[a[1]].z, 
+			aZ3 = TempVectors[a[2]].z;
+		var bZ1 = TempVectors[b[0]].z, 
+			bZ2 = TempVectors[b[1]].z, 
+			bZ3 = TempVectors[b[2]].z;
+		var aZF = Math.min(aZ1, aZ2, aZ3);
+		var bZF = Math.min(bZ1, bZ2, bZ3);
+		if(aZF > bZF){ return -1; }
+		if(aZF < bZF){ return 1; }
+		if(aZF == bZF){ return 0; }
+	};
+	var AdditivePainterSort = function(a, b){
+		var aZ1 = TempVectors[a[0]].z, 
+			aZ2 = TempVectors[a[1]].z, 
+			aZ3 = TempVectors[a[2]].z;
+		var bZ1 = TempVectors[b[0]].z, 
+			bZ2 = TempVectors[b[1]].z, 
+			bZ3 = TempVectors[b[2]].z;
+		var aZF = aZ1 + aZ2 + aZ3;
+		var bZF = bZ1 + bZ2 + bZ3;
+		if(aZF > bZF){ return -1; }
+		if(aZF < bZF){ return 1; }
+		if(aZF == bZF){ return 0; }
+	};
+	
+	TempFaces.sort(AdditivePainterSort);
+	
+	// Face (Polygon) Drawing
+	for(var y = 0; y < TempFaces.length; y++){
+		var xprod = calcDotProduct(calcNormal(TempVectors, TempFaces[y]), Camera);
+		//var xprod = 0;
+
+		var a1 = TempFaces[y][0], a2 = TempFaces[y][1], a3 = TempFaces[y][2];
+
+		//if (teapot[a1].z >= 5 || teapot[a2].z >= 5 && teapot[a3].z >= 5) {
+		//	continue;
+		//}		
+		
+		var Ax = ~~(transform(TempVectors[a1].y, TempVectors[a1].z+movement.fov) + 250),
+				Ay = ~~(transform(TempVectors[a1].x, TempVectors[a1].z+movement.fov) + 200),
+				Bx = ~~(transform(TempVectors[a2].y, TempVectors[a2].z+movement.fov) + 250),
+				By = ~~(transform(TempVectors[a2].x, TempVectors[a2].z+movement.fov) + 200),
+				Cx = ~~(transform(TempVectors[a3].y, TempVectors[a3].z+movement.fov) + 250),
+				Cy = ~~(transform(TempVectors[a3].x, TempVectors[a3].z+movement.fov) + 200);
+
+		// Canvas Drawing
+
+			Surface.save();
+
+			var _isEdge = xprod > -0.59;
+
+			var extendSegment = function(Ax, Ay, Bx, By, len){
+				var segLen = Math.sqrt(((Ax - Bx)*(Ax - Bx)) + ((Ay - By)*(Ay - By)));
+				var Cx = Bx + (Bx - Ax) / segLen * len;
+				var Cy = By + (By - Ay) / segLen * len;
+				return {x: Cx, y: Cy};
+			};
+			//Surface.fillText(dt, Ax, Cy);
+			if(_isEdge){				
+				
+				Surface.strokeStyle = 'rgb(188, 223, 138)';
+				Surface.lineWidth = 6;
+
+				Surface.beginPath();
+					var g = extendSegment(Bx, By, Ax, Ay, 1);
+					Surface.moveTo(g.x,g.y);
+					//Surface.moveTo(Ax,Ay);
+					var h = extendSegment(Ax, Ay, Bx, By, 1);
+					Surface.lineTo(h.x,h.y);
+					//Surface.lineTo(Bx,By);
+				Surface.closePath();
+				Surface.stroke();
+
+				Surface.beginPath();
+					var g = extendSegment(Cx, Cy, Bx, By, 1);
+					Surface.moveTo(g.x,g.y);
+					//Surface.moveTo(Bx,By);
+					var h = extendSegment(Bx, By, Cx, Cy, 1);
+					Surface.lineTo(h.x,h.y);
+					//Surface.lineTo(Cx,Cy);
+				Surface.closePath();
+				Surface.stroke();
+
+				Surface.beginPath();
+					var g = extendSegment(Ax, Ay, Cx, Cy, 1);
+					Surface.moveTo(g.x,g.y);
+					//Surface.moveTo(Cx,Cy);
+					var h = extendSegment(Cx, Cy, Ax, Ay, 1);
+					Surface.lineTo(h.x,h.y);
+					//Surface.lineTo(Ax,Ay);
+				Surface.closePath();
+				Surface.stroke();
+				//Surface.stroke();
+			}
+
+			Surface.beginPath();
+				Surface.moveTo(Ax,Ay);
+				Surface.lineTo(Bx,By);
+				Surface.lineTo(Cx,Cy);
+				//Surface.lineWidth = 8;
+			Surface.closePath();
+			//Surface.fill()
+			
+			//var dt = calcDotProduct(calcNormal(teapot_faces[y]),Camera);
+			//var _isEdge = xprod > -0.05;
+			//Surface.fillText(dt, Ax, Cy);
+			//if(_isEdge)
+			//	Surface.stroke();
+			
+		if(xprod <= 0){
+
+			Surface.clip();
+
+			var sy1 = 65, sx1 = 0,
+				 sy0 = 0, sx0 = 0,
+				 sy2 = 0, sx2 = 65,
+				 x0 = Ax, y0 = Ay,
+				 x1 = Bx, y1 = By,
+				 x2 = Cx, y2 = Cy;			
+			var denom = sx0 * (sy2 - sy1) - sx1 * sy2 + sx2 * sy1 + (sx1 - sx2) * sy0;
+			if (denom == 0) {
+				return;
+			} 
+			var m11 = - (sy0 * (x2 - x1) - sy1 * x2 + sy2 * x1 + (sy1 - sy2) * x0) / denom;
+			var m12 = (sy1 * y2 + sy0 * (y1 - y2) - sy2 * y1 + (sy2 - sy1) * y0) / denom;
+			var m21 = (sx0 * (x2 - x1) - sx1 * x2 + sx2 * x1 + (sx1 - sx2) * x0) / denom;
+			var m22 = - (sx1 * y2 + sx0 * (y1 - y2) - sx2 * y1 + (sx2 - sx1) * y0) / denom;
+			var dx = (sx0 * (sy2 * x1 - sy1 * x2) + sy0 * (sx1 * x2 - sx2 * x1) + (sx2 * sy1 - sx1 * sy2) * x0) / denom;
+			var dy = (sx0 * (sy2 * y1 - sy1 * y2) + sy0 * (sx1 * y2 - sx2 * y1) + (sx2 * sy1 - sx1 * sy2) * y0) / denom;
+
+	        Surface.transform(m11, m12, m21, m22, dx, dy);
+			
+			if(movement.fill)
+			{
+				Surface.fill();
+			}
+
+			if(movement.light){
+				var LightProd = calcDotProduct(calcNormal(TempVectors, TempFaces[y]),light);
+				if(LightProd <= 0)
+				{
+					var lighted = -1 * (LightProd / 100);
+					//var b = Math.ceil(lighted * 128);
+					Surface.fillStyle = 'rgba(244,244,240,' + (lighted * 0.5) + ')';
+				}
+
+				if(LightProd > 0)
+				{
+					var lighted = (LightProd / 25);
+					//var b = Math.ceil(lighted * 128);
+					Surface.fillStyle = 'rgba(0,0,0,' + (lighted / 2) + ')';
+				}
+				Surface.fill();
+			}
+		}			
+
+		Surface.restore();
+	}
+
+	//var t2 = new Date().getTime();
+	//document.getElementById('pointZ').innerHTML = (1000/((t2-t)));
+	var delta = (new Date().getTime() - lastRun)/1000;
+        lastRun = new Date().getTime();
+    var fps = 1/delta;
+    //document.getElementById('pointZ').innerHTML = fps;
+	window.requestAnimationFrame(timerthing);
+	//setTimeout(function(){timerthing();}, 0);
+}
+
+function setIdentity(){
+	var y;
+	movement = {x:0, y:0, z:0, t: 250, fov: 100};
+}
+
+function initScreen(){
+	//var g = buildBox(10, 10, 10);
+	//teapot = g.v;
+	//teapot_faces = g.f;
+	var canvas = document.getElementById('cSurface');	
+
+	// [START] Code from http://ricardocabello.com/blog/post/710
+	var QUALITY = 95;
+	var canvas_colors = document.createElement( 'canvas' );
+	canvas_colors.width = 2;
+	canvas_colors.height = 2;
+	var context_colors = canvas_colors.getContext( '2d' );
+	context_colors.fillStyle = 'rgba(0,0,0,1)';
+	context_colors.fillRect( 0, 0, 2, 2 );
+	var image_colors = context_colors.getImageData( 0, 0, 2, 2 );
+	var data = image_colors.data;
+	var canvas_render = document.createElement( 'canvas' );
+	canvas_render.width = QUALITY;
+	canvas_render.height = QUALITY;
+	var context_render = canvas_render.getContext( '2d' );
+	context_render.translate( - QUALITY / 2, - QUALITY / 2 );
+	context_render.scale( QUALITY, QUALITY );
+	data[ 0 ] = 82; // Top-left, red component
+	data[ 1 ] = 82;
+	data[ 2 ] = 82;
+
+	data[ 5 ] = 10; // Top-right, green component
+	data[ 6 ] = 10; // Top-right, green component
+	data[ 4 ] = 10; // Top-right, green component
+
+
+	data[ 8 ] = 40; // Bottom-left, blue component
+	data[ 9 ] = 40; // Bottom-left, blue component
+	data[ 10 ] = 40; // Bottom-left, blue component
+	context_colors.putImageData( image_colors, 0, 0 );
+	context_render.drawImage( canvas_colors, 0, 0 );
+	// [END] Code from http://ricardocabello.com/blog/post/710
+
+	//Logo = new Image();
+	//Logo.src = 'wood.jpg';
+
+	for(var x = 0; x < ObjectVectors.length; x++){
+		ObjectVectors[x] = translate(applyMatrix(ObjectVectors[x], rotateZ((3.14/180)*-90)), -75, 100, x > 17 ? 5 : 10);
+	}
+
+	Logo = canvas_render;
+
+	if(canvas.getContext){
+		Surface = canvas.getContext('2d');
+		Surface.fillStyle = 'rgb(0,0,0)';
+		timerthing();
+	}else{
+		return;
+	}
+}
+
+
+function changeMovement(e)
+{
+    if(typeof e == "undefined"){e = window.event;}
+    
+    var isLegalKey = function(r){
+        switch(r){
+			case 32: movement.z = 0; 
+			         movement.x = 0; 
+					 movement.y = 0; return true; // Space
+			case 38: movement.y += 0.3;   return true; // Left
+            case 37: movement.x -= 0.3;   return true; // Up
+            case 40: movement.y -= 0.3;   return true; // Right
+            case 39: movement.x += 0.3;   return true; // Down
+			case 33: movement.z += 0.3;   return true; // Page up
+			case 34: movement.z -= 0.3;   return true; // Page down
+			case 45: movement.t+=10;   return true; // Insert
+			case 46: movement.t-=10;   return true; // Delete
+			case 35: movement.fov+=10; movement.t+=20;   return true; // End
+			case 36: movement.fov-=10; movement.t-=20;  return true; // Home		
+			//case 100: movement.disassemble =  !movement.disassemble; break; // Disassemble Object
+			case 105: movement.z = 0; 
+			         movement.x = 0; 
+					 movement.y = 0;
+					 setIdentity();
+					 return true; // I (Identity)
+			case 70: movement.fill = !movement.fill; return true;
+			case 76: movement.light = !movement.light; return true;
+            default: return false;
+       }
+    };
+    
+    // These are basically scan codes, not ascii codes. Numpad 0 thru 9 are different codes than keyboard 0-9
+    var keycode = (!!e.which) ? e.which : e.keyCode;
+    //document.getElementById('pointZ').innerHTML = keycode;
+    if (isLegalKey(keycode)){
+        e.returnValue = false;   // IE
+        if(!!e.preventDefault){  // Firefox, Chrome, Safari
+            e.preventDefault();
+        }
+    }
+}
+
+document.onkeydown = changeMovement;
+
+window.onload = function(){ initScreen(); };
+			</script>
+	</head>
+	<body style="margin: 0; background-color: #000;">
+	<div id="drawSurface">
+	</div>
+	<canvas id="cSurface" width="500" height="400"></canvas>
+	
+</body></html>
