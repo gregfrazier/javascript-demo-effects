@@ -1,0 +1,82 @@
+<div style="text-align: center;">
+<canvas id="cSurface" width="256" height="256"></canvas>
+</div>
+<script type="text/javascript">
+    var Surface;
+    var SurfaceData;
+    var RenderSize = { w: 256, h: 256 };
+    var startTime;
+    var MousePosition = { x: 0, y: 0, button: false };
+    var pal = [];
+
+    function getXY(x, y, bite) {
+        return ((y * (RenderSize.w * 4)) + (x * 4)) + bite;
+    }
+    function buildPalette(clrStart, clrEnd, degrees) {
+        var h2rgb = function (c) {
+            return [parseInt(c.substr(1, 2), 16),
+                    parseInt(c.substr(3, 2), 16),
+                    parseInt(c.substr(5, 2), 16)];
+        };
+        var first = h2rgb(clrStart),
+            last = h2rgb(clrEnd),
+            a = 0,
+            gradient = [];
+
+        for (var i = 0; i < degrees; i++) {
+            a += (1.0 / degrees);
+            gradient.unshift(
+                ("00" + (Math.floor(first[0] * a + (1 - a) * last[0])).toString(16)).substr(-2) +
+                ("00" + (Math.floor(first[1] * a + (1 - a) * last[1])).toString(16)).substr(-2) +
+                ("00" + (Math.floor(first[2] * a + (1 - a) * last[2])).toString(16)).substr(-2));
+            gradient.push(
+                ("00" + (Math.floor(first[0] * a + (1 - a) * last[0])).toString(16)).substr(-2) +
+                ("00" + (Math.floor(first[1] * a + (1 - a) * last[1])).toString(16)).substr(-2) +
+                ("00" + (Math.floor(first[2] * a + (1 - a) * last[2])).toString(16)).substr(-2));
+        }
+        return gradient;
+    }
+    function UpdateScreen() {
+        var deltaTime = new Date().getTime() - startTime;
+        for (var row = RenderSize.h - 2; row > 0; row-=1) {
+            for (var col = 1; col < RenderSize.w; col+=1) {
+                var color = 0;
+                color = (128 + (128 * Math.sin(Math.sqrt( (col - RenderSize.w / 2) * (col - RenderSize.w / 2) + (row - RenderSize.h / 2) * (row - RenderSize.h / 2)) / 6 )));
+                color += 128 + (128 * Math.sin(col / 12));
+                color += 128 + (128 * Math.sin(row / 24));
+                color += (deltaTime / 3)
+                color /= 3;
+                color = color % 255;
+                SurfaceData.data[getXY(col, row, 0)] = parseInt(pal[~~color].substr(0, 2), 16);
+                SurfaceData.data[getXY(col, row, 1)] = parseInt(pal[~~color].substr(2, 2), 16);
+                SurfaceData.data[getXY(col, row, 2)] = parseInt(pal[~~color].substr(4, 2), 16);
+                SurfaceData.data[getXY(col, row, 3)] = 255;
+            }
+        }        
+        Surface.putImageData(SurfaceData, 0, 0);        
+        window.requestAnimationFrame(UpdateScreen);
+    }
+    function initScreen() {
+        var canvas = document.getElementById('cSurface');
+        stretch = document.createElement('canvas');
+        stretch.width = RenderSize.w;
+        stretch.height = RenderSize.h;
+        pal = buildPalette('#FF0000', '#0000FF', 128);
+        if (canvas.getContext) {
+            Surface = canvas.getContext('2d');
+            SurfaceData = stretch.getContext('2d').getImageData(0, 0, RenderSize.w, RenderSize.h);
+            Surface.scale(2, 1);
+            canvas.addEventListener('mousemove', function (e) {
+                event.preventDefault();
+                MousePosition.x = e.clientX - e.target.offsetLeft;
+                MousePosition.y = e.clientY - e.target.offsetTop;
+                MousePosition.button = e.which == 0 ? false : true;
+            }, false);
+        } else {
+            return;
+        }
+        startTime = new Date().getTime();
+        setTimeout(function () { UpdateScreen(); }, 10);
+    }
+    window.onload = function () { initScreen(); };
+</script>
